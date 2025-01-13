@@ -1,35 +1,40 @@
-import MainScreen from '../pages/main.tsx';
-import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import {AppRoute, AuthorizationStatus} from '../const';
+import Main from '../pages/main.tsx';
+import NotFound from '../pages/not-found.tsx';
+import { Route, Routes } from 'react-router-dom';
+import { AppRoutes } from '../consts/consts.ts';
 import Login from '../pages/login.tsx';
 import Favourites from '../pages/favourites.tsx';
 import Offer from '../pages/offer.tsx';
-import NotFound from '../pages/not_found.tsx';
 import PrivateRoute from './private-route.tsx';
-import {OfferCardType} from '../types/offer_card_type.ts';
+import { useAppSelector } from '../store/hooks.ts';
+import { LoadingScreen } from './loading-screen.tsx';
+import HistoryRouter from './history-router.tsx';
+import browserHistory from '../browser-history.ts';
+import { isOffersDataStillLoading } from '../store/data-process/data-process.selectors.ts';
 
-type AppProps = {
-  offerCards: OfferCardType[];
-}
+function App(): JSX.Element {
+  const isDataStillLoading = useAppSelector(isOffersDataStillLoading);
+  if (isDataStillLoading) {
+    return <LoadingScreen />;
+  }
 
-function App({offerCards}: AppProps): JSX.Element {
   return (
-    <BrowserRouter>
+    <HistoryRouter history={browserHistory}>
       <Routes>
-        <Route path={AppRoute.Main} element={<MainScreen offerCards={offerCards}/>}/>
-        <Route path={AppRoute.Login} element={<Login/>}/>
+        <Route path={AppRoutes.Main} element={<Main />} />
+        <Route path={AppRoutes.Login} element={<Login />} />
         <Route
-          path={AppRoute.Favourites}
+          path={AppRoutes.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
-              <Favourites favourites={offerCards}/>
+            <PrivateRoute>
+              <Favourites />
             </PrivateRoute>
           }
         />
-        <Route path={AppRoute.Offer} element={<Offer/>}/>
-        <Route path="*" element={<NotFound/>}/>
+        <Route path={AppRoutes.Offer} element={<Offer />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </HistoryRouter>
   );
 }
 

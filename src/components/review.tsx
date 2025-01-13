@@ -1,60 +1,44 @@
-import {ChangeEvent, useState} from 'react';
+import { ReviewFromPerson } from '../types/review-data.ts';
 
-const StarTitles: {[key: number]: string} = {
-  1: 'terrible',
-  2: 'bad',
-  3: 'not bad',
-  4: 'good',
-  5: 'perfect',
+type ReviewProps = {
+  review: ReviewFromPerson;
 };
 
-function Review(): JSX.Element {
-  const [reviewData, setReviewData] = useState({
-    review: '',
-    rating: 0
+const getFormattedDate = (date: string) =>
+  new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
   });
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {name, value} = event.target;
-    setReviewData({...reviewData, [name]: value});
-  };
-
+export function Review({ review }: ReviewProps): JSX.Element {
+  const { rating, user, date, comment } = review;
   return (
-    <form className="reviews__form form" action="#" method="post">
-      <label className="reviews__label form__label" htmlFor="review">Your review</label>
-      <div className="reviews__rating-form form__rating">
-        {Array.from({ length: 5 }, (_, index) => 5 - index).map((number) => (
-          <>
-            <input className="form__rating-input visually-hidden" name="rating" value={`${number}`} id={`${number}-stars`}
-              type="radio" onChange={handleChange}
-            >
-            </input>
-            <label htmlFor={`${number}-stars`} className="reviews__rating-label form__rating-label"
-              title={StarTitles[number]}
-            >
-              <svg className="form__star-image" width="37" height="33">
-                <use xlinkHref="#icon-star"></use>
-              </svg>
-            </label>
-          </>
-        ))}
+    <li className="reviews__item">
+      <div className="reviews__user user">
+        <div className="reviews__avatar-wrapper user__avatar-wrapper">
+          <img
+            className="reviews__avatar user__avatar"
+            src={user.avatarUrl}
+            width={54}
+            height={54}
+            alt="Reviews avatar"
+          />
+        </div>
+        <span className="reviews__user-name">{user.name}</span>
+        {user.isPro && <span className="offer__user-status">Pro</span>}
       </div>
-      <textarea className="reviews__textarea form__textarea" id="review" name="review" value={reviewData.review}
-        placeholder="Tell how was your stay, what you like and what can be improved" onChange={handleChange}
-      >
-      </textarea>
-      <div className="reviews__button-wrapper">
-        <p className="reviews__help">
-          To submit review please make sure to set <span className="reviews__star">rating</span> and
-          describe your stay with at least <b className="reviews__text-amount">50 characters</b>.
-        </p>
-        <button className="reviews__submit form__submit button" type="submit" disabled
-          onClick={() => {}}
-        >Submit
-        </button>
+      <div className="reviews__info">
+        <div className="reviews__rating rating">
+          <div className="reviews__stars rating__stars">
+            <span style={{ width: `${(rating * 100) / 5}%` }}></span>
+            <span className="visually-hidden">{getFormattedDate(date)}</span>
+          </div>
+        </div>
+        <p className="reviews__text">{comment}</p>
+        <time className="reviews__time" dateTime={date}>
+          April 2019
+        </time>
       </div>
-    </form>
+    </li>
   );
 }
-
-export default Review;
